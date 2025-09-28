@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <title>Këmbim Valutor</title>
+</head>
+<body>
+    <h2>Këmbim Valutor (Euro → Lek)</h2>
+    <form action="convert.php" method="post">
+        <label for="euro">Shkruaj shumën në Euro:</label><br>
+        <input type="number" name="euro" id="euro" step="0.01" required><br><br>
+
+        <label for="kursi">Shkruaj koeficientin e këmbimit:</label><br>
+        <input type="number" name="kursi" id="kursi" step="0.01" required><br><br>
+
+        <input type="submit" value="Konverto">
+        <input type="reset" value="Pastro">
+    </form>
+</body>
+</html>
