@@ -7,19 +7,23 @@ $showResult = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['reset'])) {
-        // Reset - thjesht mos bëjmë asgjë, do pastrohen fushat
+        // Reset - nuk bën asgjë, fushat do pastrohen në HTML
     } else {
-        $euroValue = filter_input(INPUT_POST, 'euro', FILTER_VALIDATE_FLOAT);
-        $rateValue = filter_input(INPUT_POST, 'koeficienti', FILTER_VALIDATE_FLOAT);
+        $fromCurrency = $_POST['fromCurrency'] ?? '';
+        $toCurrency = $_POST['toCurrency'] ?? '';
+        $amount = filter_input(INPUT_POST, 'amount', FILTER_VALIDATE_FLOAT);
+        $rate = filter_input(INPUT_POST, 'rate', FILTER_VALIDATE_FLOAT);
 
-        if ($euroValue === false || $rateValue === false || $euroValue < 0 || $rateValue <= 0) {
+        if ($amount === false || $rate === false || $amount < 0 || $rate <= 0) {
             $error = 'Ju lutem shkruani vlera valide (pozitive).';
+        } elseif (empty($fromCurrency) || empty($toCurrency)) {
+            $error = 'Zgjidhni valutën e duhur.';
         } else {
-            $lekValue = $euroValue * $rateValue;
-            $formattedLek = number_format($lekValue, 2, ',', ' ');
-            $formattedRate = number_format($rateValue, 2, ',', ' ');
-            $result = $formattedLek . ' ALL';
-            $rateInfo = "Kursi i këmbimit: 1 EUR = $formattedRate ALL";
+            $converted = $amount * $rate;
+            $formattedConverted = number_format($converted, 2, ',', ' ');
+            $formattedRate = number_format($rate, 2, ',', ' ');
+            $result = "$formattedConverted $toCurrency";
+            $rateInfo = "Kursi i këmbimit: 1 $fromCurrency = $formattedRate $toCurrency";
             $showResult = true;
         }
     }
@@ -30,12 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Kalkulator Modern i Këmbimit Valutor</title>
+    <title>Kalkulator Valutash PHP</title>
     <style>
-        /* Reset bazik */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
         body {
             margin: 0;
             font-family: 'Poppins', sans-serif;
@@ -51,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #fff;
             border-radius: 16px;
             box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-            max-width: 420px;
+            max-width: 450px;
             width: 100%;
             padding: 2.5rem 2rem;
             text-align: center;
@@ -67,24 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #7a7a9d;
             font-weight: 500;
         }
-        .flags {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1.2rem;
-            margin-bottom: 2rem;
-            font-size: 3rem;
-        }
-        .arrow {
-            font-size: 2rem;
-            color: #5a4fcf;
-            user-select: none;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
         label {
             font-weight: 600;
             color: #444;
@@ -93,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 0.4rem;
             font-size: 0.95rem;
         }
-        input[type="number"] {
+        select, input[type="number"] {
             width: 100%;
             padding: 0.75rem 1rem;
             border-radius: 12px;
@@ -103,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: 500;
             color: #333;
         }
-        input[type="number"]:focus {
+        select:focus, input:focus {
             border-color: #5a4fcf;
             outline: none;
             box-shadow: 0 0 8px rgba(90, 79, 207, 0.4);
@@ -125,23 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 4px 8px rgba(90, 79, 207, 0.3);
             color: white;
         }
-        button:active {
-            transform: scale(0.97);
-        }
-        .convert-btn {
-            background: #5a4fcf;
-        }
-        .convert-btn:hover {
-            background: #4a3eb8;
-        }
-        .reset-btn {
-            background: #e0e0e0;
-            color: #555;
-            box-shadow: none;
-        }
-        .reset-btn:hover {
-            background: #cfcfcf;
-        }
+        .convert-btn { background: #5a4fcf; }
+        .convert-btn:hover { background: #4a3eb8; }
+        .reset-btn { background: #e0e0e0; color: #555; box-shadow: none; }
+        .reset-btn:hover { background: #cfcfcf; }
         .result {
             margin-top: 2rem;
             background: #f3f4ff;
@@ -149,126 +119,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 12px;
             padding: 1.5rem 1.8rem;
             text-align: left;
-            animation: fadeInUp 0.4s ease forwards;
             color: #2c2c54;
         }
-        .result-title {
-            font-weight: 700;
-            font-size: 1.3rem;
-            margin-bottom: 0.4rem;
-        }
-        .conversion-value {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 0.3rem;
-            color: #3b3b98;
-        }
-        .rate-info {
-            font-size: 0.95rem;
-            color: #6b6b9c;
-            font-weight: 600;
-        }
+        .result-title { font-weight: 700; font-size: 1.3rem; margin-bottom: 0.4rem; }
+        .conversion-value { font-size: 2rem; font-weight: 800; margin-bottom: 0.3rem; color: #3b3b98; }
+        .rate-info { font-size: 0.95rem; color: #6b6b9c; font-weight: 600; }
         .error {
-            margin-top: 1rem;
-            background: #ffe3e3;
-            border-left: 6px solid #e74c3c;
-            padding: 1rem 1.2rem;
-            border-radius: 12px;
-            color: #b83227;
-            font-weight: 600;
-            animation: fadeInUp 0.4s ease forwards;
+            margin-top: 1rem; background: #ffe3e3;
+            border-left: 6px solid #e74c3c; padding: 1rem 1.2rem;
+            border-radius: 12px; color: #b83227; font-weight: 600;
         }
         .disclaimer {
-            margin-top: 2.5rem;
-            font-size: 0.8rem;
-            color: #999;
-            font-style: italic;
-        }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @media (max-width: 480px) {
-            .container {
-                padding: 2rem 1.5rem;
-            }
-            .flags {
-                font-size: 2.5rem;
-            }
-            .conversion-value {
-                font-size: 1.6rem;
-            }
+            margin-top: 2.5rem; font-size: 0.8rem; color: #999; font-style: italic;
         }
     </style>
 </head>
 <body>
-    <main class="container" role="main" aria-label="Kalkulatori i këmbimit valutor Euro në Lek">
-        <h1>Kalkulator Valutash</h1>
-        <p class="subtitle">Konvertoni Euro në Lek Shqiptar me lehtësi</p>
-        <div class="flags" aria-hidden="true">
-            <div>🇪🇺</div>
-            <div class="arrow">→</div>
-            <div>🇦🇱</div>
+<main class="container">
+    <h1>Kalkulator Valutash</h1>
+    <p class="subtitle">Konvertoni lehtësisht midis valutave të ndryshme</p>
+
+    <?php if ($error): ?>
+        <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <?php endif; ?>
+
+    <form method="POST">
+        <label for="fromCurrency">Nga valuta:</label>
+        <select id="fromCurrency" name="fromCurrency" required>
+            <option value="">-- Zgjidh valutën --</option>
+            <option value="EUR" <?= (($_POST['fromCurrency'] ?? '')=='EUR')?'selected':'' ?>>🇪🇺 EUR - Euro</option>
+            <option value="USD" <?= (($_POST['fromCurrency'] ?? '')=='USD')?'selected':'' ?>>🇺🇸 USD - Dollar Amerikan</option>
+            <option value="CAD" <?= (($_POST['fromCurrency'] ?? '')=='CAD')?'selected':'' ?>>🇨🇦 CAD - Dollar Kanadez</option>
+            <option value="AUD" <?= (($_POST['fromCurrency'] ?? '')=='AUD')?'selected':'' ?>>🇦🇺 AUD - Dollar Australian</option>
+            <option value="NZD" <?= (($_POST['fromCurrency'] ?? '')=='NZD')?'selected':'' ?>>🇳🇿 NZD - Dollar Zelanda e Re</option>
+            <option value="GBP" <?= (($_POST['fromCurrency'] ?? '')=='GBP')?'selected':'' ?>>🇬🇧 GBP - Pound Britanik</option>
+            <option value="CHF" <?= (($_POST['fromCurrency'] ?? '')=='CHF')?'selected':'' ?>>🇨🇭 CHF - Franga Zviceriane</option>
+            <option value="SEK" <?= (($_POST['fromCurrency'] ?? '')=='SEK')?'selected':'' ?>>🇸🇪 SEK - Korona Suedeze</option>
+            <option value="DKK" <?= (($_POST['fromCurrency'] ?? '')=='DKK')?'selected':'' ?>>🇩🇰 DKK - Korona Daneze</option>
+            <option value="NOK" <?= (($_POST['fromCurrency'] ?? '')=='NOK')?'selected':'' ?>>🇳🇴 NOK - Korona Norvegjese</option>
+            <option value="JPY" <?= (($_POST['fromCurrency'] ?? '')=='JPY')?'selected':'' ?>>🇯🇵 JPY - Jen Japonez</option>
+            <option value="CNY" <?= (($_POST['fromCurrency'] ?? '')=='CNY')?'selected':'' ?>>🇨🇳 CNY - Yuan Kinez</option>
+            <option value="TRY" <?= (($_POST['fromCurrency'] ?? '')=='TRY')?'selected':'' ?>>🇹🇷 TRY - Lira Turke</option>
+            <option value="HUF" <?= (($_POST['fromCurrency'] ?? '')=='HUF')?'selected':'' ?>>🇭🇺 HUF - Forint Hungarez</option>
+            <option value="ALL" <?= (($_POST['fromCurrency'] ?? '')=='ALL')?'selected':'' ?>>🇦🇱 ALL - Lek Shqiptar</option>
+        </select>
+
+        <label for="toCurrency">Në valutë:</label>
+        <select id="toCurrency" name="toCurrency" required>
+            <option value="">-- Zgjidh valutën --</option>
+            <option value="ALL" <?= (($_POST['toCurrency'] ?? '')=='ALL')?'selected':'' ?>>🇦🇱 ALL - Lek Shqiptar</option>
+            <option value="EUR" <?= (($_POST['toCurrency'] ?? '')=='EUR')?'selected':'' ?>>🇪🇺 EUR - Euro</option>
+            <option value="USD" <?= (($_POST['toCurrency'] ?? '')=='USD')?'selected':'' ?>>🇺🇸 USD - Dollar Amerikan</option>
+            <option value="GBP" <?= (($_POST['toCurrency'] ?? '')=='GBP')?'selected':'' ?>>🇬🇧 GBP - Pound Britanik</option>
+        </select>
+
+        <label for="amount">Shuma:</label>
+        <input type="number" id="amount" name="amount" step="0.01" min="0" placeholder="0.00"
+               value="<?php echo isset($_POST['amount']) ? htmlspecialchars($_POST['amount']) : ''; ?>" required>
+
+        <label for="rate">Kursi (1 njësi = ?):</label>
+        <input type="number" id="rate" name="rate" step="0.01" min="0.01" placeholder="120.50"
+               value="<?php echo isset($_POST['rate']) ? htmlspecialchars($_POST['rate']) : ''; ?>" required>
+
+        <div class="buttons">
+            <button type="submit" name="submit" class="convert-btn">Konverto</button>
+            <button type="submit" name="reset" class="reset-btn">Pastro</button>
         </div>
+    </form>
 
-        <?php if ($error): ?>
-            <div class="error" role="alert"><?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
+    <?php if ($showResult): ?>
+        <section class="result">
+            <div class="result-title">Rezultati:</div>
+            <div class="conversion-value"><?= htmlspecialchars($result) ?></div>
+            <div class="rate-info"><?= htmlspecialchars($rateInfo) ?></div>
+        </section>
+    <?php endif; ?>
 
-        <form method="POST" novalidate>
-            <label for="euro">Shuma në Euro (€):</label>
-            <input 
-                type="number" 
-                id="euro" 
-                name="euro" 
-                step="0.01" 
-                min="0" 
-                placeholder="0.00" 
-                value="<?php echo isset($_POST['euro']) ? htmlspecialchars($_POST['euro']) : ''; ?>" 
-                required 
-                aria-required="true"
-                aria-describedby="euroHelp"
-            />
-            <small id="euroHelp" style="color:#666; font-size:0.8rem; margin-top:-1rem; margin-bottom:1rem; display:block;">Shkruaj shumën që dëshiron të konvertohet</small>
-
-            <label for="koeficienti">Kursi i këmbimit (1 EUR = ? ALL):</label>
-            <input 
-                type="number" 
-                id="koeficienti" 
-                name="koeficienti" 
-                step="0.01" 
-                min="0.01" 
-                placeholder="120.50" 
-                value="<?php echo isset($_POST['koeficienti']) ? htmlspecialchars($_POST['koeficienti']) : ''; ?>" 
-                required 
-                aria-required="true"
-                aria-describedby="rateHelp"
-            />
-            <small id="rateHelp" style="color:#666; font-size:0.8rem; margin-top:-1rem; margin-bottom:1rem; display:block;">Shkruaj kursin aktual të këmbimit</small>
-
-            <div class="buttons">
-                <button type="submit" name="submit" class="convert-btn" aria-label="Konverto valutat">Konverto</button>
-                <button type="submit" name="reset" class="reset-btn" aria-label="Pastro fushat">Pastro</button>
-            </div>
-        </form>
-
-        <?php if ($showResult): ?>
-            <section class="result" aria-live="polite" aria-atomic="true">
-                <div class="result-title">Rezultati:</div>
-                <div class="conversion-value"><?php echo htmlspecialchars($result); ?></div>
-                <div class="rate-info"><?php echo htmlspecialchars($rateInfo); ?></div>
-            </section>
-        <?php endif; ?>
-
-        <p class="disclaimer">
-            Ky kalkulator është për qëllime informative. Kontrolloni gjithmonë kurset aktuale të këmbimit.
-        </p>
-    </main>
+    <p class="disclaimer">
+        Ky kalkulator është për qëllime informative. Kontrolloni gjithmonë kurset aktuale të këmbimit.
+    </p>
+</main>
 </body>
 </html>

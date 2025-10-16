@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Kalkulator Modern i Këmbimit Valutor</title>
     <style>
-        /* Reset bazik */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
         body {
             margin: 0;
             font-family: 'Poppins', sans-serif;
@@ -24,7 +21,7 @@
             background: #fff;
             border-radius: 16px;
             box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-            max-width: 420px;
+            max-width: 450px;
             width: 100%;
             padding: 2.5rem 2rem;
             text-align: center;
@@ -48,197 +45,110 @@
             margin-bottom: 2rem;
             font-size: 3rem;
         }
-        .arrow {
-            font-size: 2rem;
-            color: #5a4fcf;
-            user-select: none;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
+        .arrow { font-size: 2rem; color: #5a4fcf; user-select: none; }
+        form { display: flex; flex-direction: column; gap: 1.5rem; }
         label {
-            font-weight: 600;
-            color: #444;
-            text-align: left;
-            display: block;
-            margin-bottom: 0.4rem;
-            font-size: 0.95rem;
+            font-weight: 600; color: #444; text-align: left;
+            display: block; margin-bottom: 0.4rem; font-size: 0.95rem;
         }
-        input[type="number"] {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            border: 2px solid #ddd;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-            font-weight: 500;
-            color: #333;
+        select, input[type="number"] {
+            width: 100%; padding: 0.75rem 1rem; border-radius: 12px;
+            border: 2px solid #ddd; font-size: 1rem; transition: border-color 0.3s ease;
+            font-weight: 500; color: #333;
         }
-        input[type="number"]:focus {
-            border-color: #5a4fcf;
-            outline: none;
+        input:focus, select:focus {
+            border-color: #5a4fcf; outline: none;
             box-shadow: 0 0 8px rgba(90, 79, 207, 0.4);
         }
-        .buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
+        .buttons { display: flex; gap: 1rem; margin-top: 1rem; }
         button {
-            flex: 1;
-            padding: 0.85rem 0;
-            border-radius: 12px;
-            border: none;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
+            flex: 1; padding: 0.85rem 0; border-radius: 12px; border: none;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
             transition: background-color 0.3s ease, transform 0.1s ease;
-            box-shadow: 0 4px 8px rgba(90, 79, 207, 0.3);
-            color: white;
+            box-shadow: 0 4px 8px rgba(90, 79, 207, 0.3); color: white;
         }
-        button:active {
-            transform: scale(0.97);
-        }
-        .convert-btn {
-            background: #5a4fcf;
-        }
-        .convert-btn:hover {
-            background: #4a3eb8;
-        }
+        button:active { transform: scale(0.97); }
+        .convert-btn { background: #5a4fcf; }
+        .convert-btn:hover { background: #4a3eb8; }
         .reset-btn {
-            background: #e0e0e0;
-            color: #555;
-            box-shadow: none;
+            background: #e0e0e0; color: #555; box-shadow: none;
         }
-        .reset-btn:hover {
-            background: #cfcfcf;
-        }
+        .reset-btn:hover { background: #cfcfcf; }
         .result {
-            margin-top: 2rem;
-            background: #f3f4ff;
-            border-left: 6px solid #5a4fcf;
-            border-radius: 12px;
-            padding: 1.5rem 1.8rem;
-            text-align: left;
-            animation: fadeInUp 0.4s ease forwards;
-            color: #2c2c54;
-            display: none;
+            margin-top: 2rem; background: #f3f4ff;
+            border-left: 6px solid #5a4fcf; border-radius: 12px;
+            padding: 1.5rem 1.8rem; text-align: left;
+            color: #2c2c54; display: none;
         }
-        .result.visible {
-            display: block;
-        }
-        .result-title {
-            font-weight: 700;
-            font-size: 1.3rem;
-            margin-bottom: 0.4rem;
-        }
+        .result.visible { display: block; }
+        .result-title { font-weight: 700; font-size: 1.3rem; margin-bottom: 0.4rem; }
         .conversion-value {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 0.3rem;
-            color: #3b3b98;
+            font-size: 2rem; font-weight: 800; margin-bottom: 0.3rem; color: #3b3b98;
         }
-        .rate-info {
-            font-size: 0.95rem;
-            color: #6b6b9c;
-            font-weight: 600;
-        }
+        .rate-info { font-size: 0.95rem; color: #6b6b9c; font-weight: 600; }
         .error {
-            margin-top: 1rem;
-            background: #ffe3e3;
-            border-left: 6px solid #e74c3c;
-            padding: 1rem 1.2rem;
-            border-radius: 12px;
-            color: #b83227;
-            font-weight: 600;
-            animation: fadeInUp 0.4s ease forwards;
+            margin-top: 1rem; background: #ffe3e3;
+            border-left: 6px solid #e74c3c; padding: 1rem 1.2rem;
+            border-radius: 12px; color: #b83227; font-weight: 600;
             display: none;
         }
-        .error.visible {
-            display: block;
-        }
+        .error.visible { display: block; }
         .disclaimer {
-            margin-top: 2.5rem;
-            font-size: 0.8rem;
-            color: #999;
-            font-style: italic;
-        }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @media (max-width: 480px) {
-            .container {
-                padding: 2rem 1.5rem;
-            }
-            .flags {
-                font-size: 2.5rem;
-            }
-            .conversion-value {
-                font-size: 1.6rem;
-            }
+            margin-top: 2.5rem; font-size: 0.8rem;
+            color: #999; font-style: italic;
         }
     </style>
 </head>
 <body>
-    <main class="container" role="main" aria-label="Kalkulatori i këmbimit valutor Euro në Lek">
+    <main class="container">
         <h1>Kalkulator Valutash</h1>
-        <p class="subtitle">Konvertoni Euro në Lek Shqiptar me lehtësi</p>
-        <div class="flags" aria-hidden="true">
-            <div>🇪🇺</div>
-            <div class="arrow">→</div>
-            <div>🇦🇱</div>
-        </div>
+        <p class="subtitle">Konvertoni lehtësisht midis valutave të ndryshme</p>
 
         <form id="conversion-form" novalidate>
-            <label for="euro">Shuma në Euro (€):</label>
-            <input 
-                type="number" 
-                id="euro" 
-                name="euro" 
-                step="0.01" 
-                min="0" 
-                placeholder="0.00" 
-                required 
-                aria-required="true"
-                aria-describedby="euroHelp"
-            />
-            <small id="euroHelp" style="color:#666; font-size:0.8rem; margin-top:-1rem; margin-bottom:1rem; display:block;">Shkruaj shumën që dëshiron të konvertohet</small>
+            <label for="from-currency">Nga valuta:</label>
+            <select id="from-currency">
+                <option value="EUR">🇪🇺 EUR - Euro</option>
+                <option value="USD">🇺🇸 USD - Dollar Amerikan</option>
+                <option value="CAD">🇨🇦 CAD - Dollar Kanadez</option>
+                <option value="AUD">🇦🇺 AUD - Dollar Australian</option>
+                <option value="NZD">🇳🇿 NZD - Dollar Zelanda e Re</option>
+                <option value="GBP">🇬🇧 GBP - Pound Britanik</option>
+                <option value="CHF">🇨🇭 CHF - Franga Zviceriane</option>
+                <option value="SEK">🇸🇪 SEK - Korona Suedeze</option>
+                <option value="DKK">🇩🇰 DKK - Korona Daneze</option>
+                <option value="NOK">🇳🇴 NOK - Korona Norvegjese</option>
+                <option value="JPY">🇯🇵 JPY - Jen Japonez</option>
+                <option value="CNY">🇨🇳 CNY - Yuan Kinez</option>
+                <option value="TRY">🇹🇷 TRY - Lira Turke</option>
+                <option value="HUF">🇭🇺 HUF - Forint Hungarez</option>
+            </select>
 
-            <label for="koeficienti">Kursi i këmbimit (1 EUR = ? ALL):</label>
-            <input 
-                type="number" 
-                id="koeficienti" 
-                name="koeficienti" 
-                step="0.01" 
-                min="0.01" 
-                placeholder="120.50" 
-                required 
-                aria-required="true"
-                aria-describedby="rateHelp"
-            />
-            <small id="rateHelp" style="color:#666; font-size:0.8rem; margin-top:-1rem; margin-bottom:1rem; display:block;">Shkruaj kursin aktual të këmbimit</small>
+            <label for="to-currency">Në valutë:</label>
+            <select id="to-currency">
+                <option value="ALL">🇦🇱 ALL - Lek Shqiptar</option>
+                <option value="EUR">🇪🇺 EUR - Euro</option>
+                <option value="USD">🇺🇸 USD - Dollar Amerikan</option>
+                <option value="GBP">🇬🇧 GBP - Pound Britanik</option>
+            </select>
+
+            <label for="amount">Shuma:</label>
+            <input type="number" id="amount" placeholder="0.00" min="0" step="0.01" required>
+
+            <label for="rate">Kursi (1 njësi = ?):</label>
+            <input type="number" id="rate" placeholder="120.50" min="0.01" step="0.01" required>
 
             <div class="buttons">
-                <button type="submit" class="convert-btn" aria-label="Konverto valutat">Konverto</button>
-                <button type="button" id="reset-btn" class="reset-btn" aria-label="Pastro fushat">Pastro</button>
+                <button type="submit" class="convert-btn">Konverto</button>
+                <button type="button" id="reset-btn" class="reset-btn">Pastro</button>
             </div>
         </form>
 
-        <div id="error-message" class="error" role="alert" aria-live="assertive"></div>
+        <div id="error-message" class="error"></div>
 
-        <section id="result" class="result" aria-live="polite" aria-atomic="true">
+        <section id="result" class="result">
             <div class="result-title">Rezultati:</div>
-            <div class="conversion-value" id="conversion-value">0,00 ALL</div>
-            <div class="rate-info" id="rate-info">Kursi i këmbimit: 1 EUR = 0,00 ALL</div>
+            <div class="conversion-value" id="conversion-value">0,00</div>
+            <div class="rate-info" id="rate-info"></div>
         </section>
 
         <p class="disclaimer">
@@ -249,8 +159,10 @@
     <script>
         (function() {
             const form = document.getElementById('conversion-form');
-            const euroInput = document.getElementById('euro');
-            const rateInput = document.getElementById('koeficienti');
+            const amountInput = document.getElementById('amount');
+            const rateInput = document.getElementById('rate');
+            const fromCurrency = document.getElementById('from-currency');
+            const toCurrency = document.getElementById('to-currency');
             const resultSection = document.getElementById('result');
             const conversionValue = document.getElementById('conversion-value');
             const rateInfo = document.getElementById('rate-info');
@@ -258,47 +170,40 @@
             const resetBtn = document.getElementById('reset-btn');
 
             function formatNumber(num) {
-                // Format number as Albanian locale: space as thousand separator, comma decimal
                 return num.toLocaleString('sq-AL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                errorMessage.textContent = '';
                 errorMessage.classList.remove('visible');
                 resultSection.classList.remove('visible');
 
-                const euroValue = parseFloat(euroInput.value);
-                const rateValue = parseFloat(rateInput.value);
+                const amount = parseFloat(amountInput.value);
+                const rate = parseFloat(rateInput.value);
 
-                if (isNaN(euroValue) || euroValue < 0) {
-                    errorMessage.textContent = 'Ju lutem shkruani një shumë valide në Euro (≥ 0).';
+                if (isNaN(amount) || amount <= 0) {
+                    errorMessage.textContent = 'Shkruani një shumë të vlefshme.';
                     errorMessage.classList.add('visible');
-                    euroInput.focus();
                     return;
                 }
-                if (isNaN(rateValue) || rateValue <= 0) {
-                    errorMessage.textContent = 'Ju lutem shkruani një kurs valide të këmbimit (> 0).';
+                if (isNaN(rate) || rate <= 0) {
+                    errorMessage.textContent = 'Shkruani një kurs të vlefshëm.';
                     errorMessage.classList.add('visible');
-                    rateInput.focus();
                     return;
                 }
 
-                const lekValue = euroValue * rateValue;
-
-                conversionValue.textContent = formatNumber(lekValue) + ' ALL';
-                rateInfo.textContent = `Kursi i këmbimit: 1 EUR = ${formatNumber(rateValue)} ALL`;
+                const result = amount * rate;
+                conversionValue.textContent = `${formatNumber(result)} ${toCurrency.value}`;
+                rateInfo.textContent = `1 ${fromCurrency.value} = ${formatNumber(rate)} ${toCurrency.value}`;
 
                 resultSection.classList.add('visible');
             });
 
-            resetBtn.addEventListener('click', function() {
-                euroInput.value = '';
+            resetBtn.addEventListener('click', () => {
+                amountInput.value = '';
                 rateInput.value = '';
-                errorMessage.textContent = '';
-                errorMessage.classList.remove('visible');
                 resultSection.classList.remove('visible');
-                euroInput.focus();
+                errorMessage.classList.remove('visible');
             });
         })();
     </script>
